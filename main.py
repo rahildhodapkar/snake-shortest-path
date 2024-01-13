@@ -1,16 +1,23 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+import pyxel
+from food import Food
+from snake import Snake
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+class App:
+    def __init__(self):
+        pyxel.init(384, 300, display_scale=3, title="Snake", fps=20)
+        pyxel.load("assets/resources.pyxres")
+        self.food = Food()
+        self.snake = Snake()
+        pyxel.run(self.update, self.draw)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    def update(self):
+        self.snake.update()
+
+    def draw(self):
+        pyxel.cls(0)
+        self.food.draw()
+        self.snake.draw()
+
+
+App()
