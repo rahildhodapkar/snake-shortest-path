@@ -1,6 +1,7 @@
 import pyxel
 from food import Food
 from snake import Snake
+from random import randint
 
 
 class App:
@@ -16,8 +17,11 @@ class App:
 
     def draw(self):
         pyxel.cls(0)
-        self.food.draw()
         self.snake.draw()
+        if self.snake.detect_food_collision(self.food):
+            self.food.x = int(randint(0, pyxel.width - self.food.w) / self.food.w) * self.food.w
+            self.food.y = int(randint(0, pyxel.height - self.food.w) / self.food.w) * self.food.w
+        self.food.draw()
 
 
 App()
