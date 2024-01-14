@@ -4,6 +4,7 @@ from hud import draw_hud, draw_ready_screen, draw_game_over, draw_manual_instruc
 from food import Food
 from snake import Snake
 from random import randint
+from bot import bfs
 
 
 class GameState(enum.Enum):
@@ -14,6 +15,8 @@ class GameState(enum.Enum):
     PAUSED = 4
     END = 5
 
+# Need to figure out how to properly pass grid and its start/end values of food and head of snake
+
 
 class App:
     def __init__(self):
@@ -22,6 +25,7 @@ class App:
         self.food = Food()
         self.snake = Snake()
         self.score = None
+        self.is_manual = True
         self.state = GameState.READY
         pyxel.run(self.update, self.draw)
 
@@ -34,7 +38,12 @@ class App:
             if pyxel.btnp(pyxel.KEY_2):
                 self.state = GameState.BFS
 
-        if self.state == GameState.MANUAL or GameState.BFS:
+        if self.state == GameState.MANUAL:
+            if pyxel.btnp(pyxel.KEY_RETURN):
+                self.state = GameState.RUNNING
+
+        if self.state == GameState.BFS:
+            self.is_manual = True
             if pyxel.btnp(pyxel.KEY_RETURN):
                 self.state = GameState.RUNNING
 
@@ -42,7 +51,10 @@ class App:
             if pyxel.btnp(pyxel.KEY_P):
                 self.state = GameState.PAUSED
                 return
-            self.snake.update()
+            instruction = None
+            if not self.is_manual:
+                instruction = bfs()
+            self.snake.update(instruction)
             self.check_collision()
 
         if self.state == GameState.PAUSED:
@@ -58,7 +70,7 @@ class App:
     def draw(self):
         pyxel.cls(0)
         if self.state == GameState.END:
-            draw_game_over(score=self.score)
+            draw_game_over(self.score)
         if self.state == GameState.READY:
             draw_ready_screen()
         if self.state == GameState.MANUAL:
@@ -66,7 +78,7 @@ class App:
         if self.state == GameState.RUNNING:
             self.snake.draw()
             self.food.draw()
-            draw_hud(score=self.score)
+            draw_hud(self.score)
         if self.state == GameState.PAUSED:
             draw_pause_instructions()
 

@@ -1,20 +1,13 @@
-import enum
+from direction import Direction
 import pyxel
 from segment import Segment
-
-
-class Direction(enum.Enum):
-    UP = 0
-    DOWN = 1
-    LEFT = 2
-    RIGHT = 3
-    NOT_MOVING = 4
 
 
 class Snake:
     def __init__(self):
         self.direction = None
         self.snake_list = None
+        self.grid = None
 
     def load_snake(self):
         self.snake_list = []
@@ -25,11 +18,16 @@ class Snake:
         for seg in self.snake_list:
             seg.draw()
 
-    def update(self):
+    def update(self, is_manual):
         if self.direction == Direction.NOT_MOVING:
             return
 
-        self.check_input()
+        if is_manual:
+            self.check_input()
+        else:
+            if self.grid is None:
+                pass
+
         w = self.snake_list[0].w
 
         head = self.snake_list[0]
@@ -122,3 +120,12 @@ class Snake:
 
     def end_snake(self):
         self.direction = Direction.NOT_MOVING
+
+    def init_grid(self):
+        rows = pyxel.height // 6
+        cols = pyxel.width // 6
+        self.grid = [[0 for _ in range(cols)] for _ in range(rows)]
+        start_x = (pyxel.height / 2) // 6
+        start_y = (pyxel.width / 2) // 6
+        self.grid[start_x][start_y] = 1
+        return
