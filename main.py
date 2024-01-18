@@ -1,5 +1,6 @@
 import pyxel
-from hud import draw_hud, draw_ready_screen, draw_game_over, draw_manual_instructions, draw_pause_instructions, draw_bfs_instructions
+from hud import draw_hud, draw_ready_screen, draw_game_over, draw_manual_instructions, draw_pause_instructions, \
+    draw_bfs_instructions
 from food import Food
 from snake import Snake
 from random import randint
@@ -8,7 +9,7 @@ from gamestate import GameState
 
 class App:
     def __init__(self):
-        pyxel.init(384, 300, display_scale=2, title="SNAKE SHORTEST PATH DEMO", fps=60)
+        pyxel.init(384, 300, display_scale=2, title="SNAKE SHORTEST PATH DEMO", fps=20)
         pyxel.load("assets/resources.pyxres")
         self.food = Food()
         self.snake = Snake()

@@ -3,6 +3,7 @@ from segment import Segment
 from direction import Direction
 from collections import deque as queue
 
+
 dRow = [1, -1, 0, 0]
 dCol = [0, 0, -1, 1]
 
@@ -55,10 +56,8 @@ class Snake:
         if is_manual:
             self.check_input()
         else:
-            if len(self.direction_list) == 0:
-                self.load_grid()
-                self.bfs(food_x, food_y)
-
+            self.load_grid()
+            self.bfs(food_x, food_y)
             if len(self.direction_list) > 0:
                 self.direction = self.direction_list.pop(0)
 
@@ -164,14 +163,8 @@ class Snake:
         for seg in self.snake_list:
             grid_x = round(seg.x / 6)
             grid_y = round(seg.y / 6)
-            if 0 <= grid_x < cols and 0 <= grid_y < rows:
+            if 0 <= grid_x < len(self.grid[0]) and 0 <= grid_y < len(self.grid):
                 self.grid[grid_y][grid_x] = 1
-
-    def update_grid(self):
-        head = self.snake_list[0]
-        tail = self.snake_list[len(self.snake_list) - 1]
-        self.grid[round(head.y / 6)][round(head.x / 6)] = 1
-        self.grid[round(tail.y / 6)][round(tail.x / 6)] = 0
 
     def bfs(self, food_x, food_y):
         rows, cols = len(self.grid), len(self.grid[0])
