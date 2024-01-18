@@ -1,11 +1,9 @@
-import pyxel
-from segment import Segment
-from direction import Direction
 from collections import deque as queue
 
+import pyxel
 
-dRow = [1, -1, 0, 0]
-dCol = [0, 0, -1, 1]
+from direction import Direction
+from segment import Segment
 
 
 def get_direction_from_parent(parent, current):
@@ -172,6 +170,9 @@ class Snake:
         q = queue()
         parent = {}
 
+        d_row = [1, -1, 0, 0]
+        d_col = [0, 0, -1, 1]
+
         head = self.snake_list[0]
         start = (round(head.y / 6), round(head.x / 6))
         goal = (round(food_y / 6), round(food_x / 6))
@@ -186,7 +187,7 @@ class Snake:
                 return
 
             for i in range(4):
-                adj_y, adj_x = y + dRow[i], x + dCol[i]
+                adj_y, adj_x = y + d_row[i], x + d_col[i]
                 if self.is_valid(adj_y, adj_x, visited):
                     q.append((adj_y, adj_x))
                     visited[adj_y][adj_x] = True
@@ -195,9 +196,8 @@ class Snake:
         self.direction_list = []
 
     def is_valid(self, row, col, visited):
-        return (
-                0 <= row < len(self.grid) and
-                0 <= col < len(self.grid[0]) and
-                not visited[row][col] and
-                self.grid[row][col] == 0
-        )
+        is_within_bounds = 0 <= row < len(self.grid) and 0 <= col < len(self.grid[0])
+        is_not_visited = not visited[row][col]
+        is_empty_cell = self.grid[row][col] == 0
+
+        return is_within_bounds and is_not_visited and is_empty_cell

@@ -1,17 +1,20 @@
-import pyxel
-from hud import draw_hud, draw_ready_screen, draw_game_over, draw_manual_instructions, draw_pause_instructions, \
-    draw_bfs_instructions
-from food import Food
-from snake import Snake
 from random import randint
+
+import pyxel
+
+from food import Food
 from gamestate import GameState
+from hud import (draw_automatic_instructions, draw_game_over, draw_hud,
+                 draw_manual_instructions, draw_pause_instructions,
+                 draw_ready_screen)
+from snake import Snake
 
 
 class App:
     def __init__(self):
-        pyxel.init(384, 300, display_scale=2, title="SNAKE SHORTEST PATH DEMO", fps=20)
+        pyxel.init(384, 300, display_scale=2, title="SNAKE SHORTEST PATH", fps=20)
         pyxel.load("assets/resources.pyxres")
-        self.food = Food()
+        self.food = None
         self.snake = Snake()
         self.score = None
         self.state = GameState.READY
@@ -20,6 +23,7 @@ class App:
 
     def update(self):
         if self.state == GameState.READY:
+            self.food = Food()
             self.snake.load_snake()
             self.score = 1
             if pyxel.btnp(pyxel.KEY_1):
@@ -62,7 +66,7 @@ class App:
         if self.state == GameState.MANUAL:
             draw_manual_instructions()
         if self.state == GameState.BFS:
-            draw_bfs_instructions()
+            draw_automatic_instructions()
         if self.state == GameState.RUNNING:
             self.snake.draw()
             self.food.draw()

@@ -20,9 +20,11 @@ def draw_ready_screen():
     title = "SNAKE SHORTEST PATH DEMO"
     press_one_text = "Press 1 to play SNAKE manually"
     press_two_text = "Press 2 to automatically play SNAKE with Breadth-First-Search"
+    press_three_text = "Press 3 to automatically play SNAKE with A* Search"
     pyxel.text(center_text(title), pyxel.height / 3, title, 11)
     pyxel.text(center_text(press_one_text), pyxel.height / 12 * 5, press_one_text, 12)
     pyxel.text(center_text(press_two_text), pyxel.height / 2, press_two_text, 14)
+    pyxel.text(center_text(press_three_text), pyxel.height / 12 * 7, press_three_text, 10)
 
 
 def draw_manual_instructions():
@@ -32,7 +34,7 @@ def draw_manual_instructions():
     pyxel.text(center_text(sub_title), pyxel.height / 12 * 5, sub_title, 7)
 
 
-def draw_bfs_instructions():
+def draw_automatic_instructions():
     title = "Press P to pause"
     sub_title = "Press ENTER to continue"
     pyxel.text(center_text(title), pyxel.height / 3, title, 7)
