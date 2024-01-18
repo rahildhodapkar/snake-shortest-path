@@ -1,38 +1,26 @@
-import enum
 import pyxel
-from hud import draw_hud, draw_ready_screen, draw_game_over, draw_manual_instructions, draw_pause_instructions
+from hud import draw_hud, draw_ready_screen, draw_game_over, draw_manual_instructions, draw_pause_instructions, draw_bfs_instructions
 from food import Food
 from snake import Snake
 from random import randint
-from bot import bfs
-
-
-class GameState(enum.Enum):
-    READY = 0
-    MANUAL = 1
-    BFS = 2
-    RUNNING = 3
-    PAUSED = 4
-    END = 5
-
-# Need to figure out how to properly pass grid and its start/end values of food and head of snake
+from gamestate import GameState
 
 
 class App:
     def __init__(self):
-        pyxel.init(384, 300, display_scale=3, title="Segment", fps=20)
+        pyxel.init(384, 300, display_scale=2, title="SNAKE SHORTEST PATH DEMO", fps=60)
         pyxel.load("assets/resources.pyxres")
         self.food = Food()
         self.snake = Snake()
         self.score = None
-        self.is_manual = True
         self.state = GameState.READY
+        self.is_manual = True
         pyxel.run(self.update, self.draw)
 
     def update(self):
         if self.state == GameState.READY:
             self.snake.load_snake()
-            self.score = 0
+            self.score = 1
             if pyxel.btnp(pyxel.KEY_1):
                 self.state = GameState.MANUAL
             if pyxel.btnp(pyxel.KEY_2):
@@ -43,7 +31,7 @@ class App:
                 self.state = GameState.RUNNING
 
         if self.state == GameState.BFS:
-            self.is_manual = True
+            self.is_manual = False
             if pyxel.btnp(pyxel.KEY_RETURN):
                 self.state = GameState.RUNNING
 
@@ -51,11 +39,8 @@ class App:
             if pyxel.btnp(pyxel.KEY_P):
                 self.state = GameState.PAUSED
                 return
-            instruction = None
-            if not self.is_manual:
-                instruction = bfs()
-            self.snake.update(instruction)
             self.check_collision()
+            self.snake.update(self.is_manual, self.food.x, self.food.y)
 
         if self.state == GameState.PAUSED:
             if pyxel.btnp(pyxel.KEY_P):
@@ -75,6 +60,8 @@ class App:
             draw_ready_screen()
         if self.state == GameState.MANUAL:
             draw_manual_instructions()
+        if self.state == GameState.BFS:
+            draw_bfs_instructions()
         if self.state == GameState.RUNNING:
             self.snake.draw()
             self.food.draw()
@@ -87,8 +74,16 @@ class App:
             self.snake.end_snake()
             self.state = GameState.END
         if self.snake.detect_food_collision(self.food):
-            self.food.x = int(randint(0, pyxel.width - self.food.w) / self.food.w) * self.food.w
-            self.food.y = int(randint(0, pyxel.height - self.food.w) / self.food.w) * self.food.w
+            while True:
+                self.food.x = int(randint(0, pyxel.width - self.food.w) / self.food.w) * self.food.w
+                self.food.y = int(randint(0, pyxel.height - self.food.w) / self.food.w) * self.food.w
+                flag = False
+                for seg in self.snake.snake_list:
+                    if self.food.x == seg.x and self.food.y == seg.y:
+                        flag = True
+                        break
+                if not flag:
+                    break
             self.score += 1
 
 

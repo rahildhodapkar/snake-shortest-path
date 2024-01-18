@@ -1,11 +1,11 @@
 import pyxel
 
 
-def draw_hud(score=0):
+def draw_hud(score=1):
     pyxel.text(10, 5, "Score: " + str(score), 7)
 
 
-def draw_game_over(score=0):
+def draw_game_over(score=1):
     title = "GAME OVER"
     score_text = "You Scored: " + str(score) + " points"
     press_enter_text = "Press ENTER to try again"
@@ -27,6 +27,13 @@ def draw_ready_screen():
 
 def draw_manual_instructions():
     title = "Use WASD or Arrow Keys to move snake and P to pause"
+    sub_title = "Press ENTER to continue"
+    pyxel.text(center_text(title), pyxel.height / 3, title, 7)
+    pyxel.text(center_text(sub_title), pyxel.height / 12 * 5, sub_title, 7)
+
+
+def draw_bfs_instructions():
+    title = "Press P to pause"
     sub_title = "Press ENTER to continue"
     pyxel.text(center_text(title), pyxel.height / 3, title, 7)
     pyxel.text(center_text(sub_title), pyxel.height / 12 * 5, sub_title, 7)

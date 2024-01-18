@@ -1,11 +1,41 @@
-from direction import Direction
 import pyxel
 from segment import Segment
+from direction import Direction
+from collections import deque as queue
+
+dRow = [1, -1, 0, 0]
+dCol = [0, 0, -1, 1]
+
+
+def get_direction_from_parent(parent, current):
+    py, px = parent
+    cy, cx = current
+    if cx == px + 1:
+        return Direction.RIGHT
+    if cx == px - 1:
+        return Direction.LEFT
+    if cy == py + 1:
+        return Direction.DOWN
+    if cy == py - 1:
+        return Direction.UP
+
+
+def reconstruct_path(parent, start, goal):
+    path = []
+    current = goal
+    while current != start:
+        prev = parent[current]
+        direction = get_direction_from_parent(prev, current)
+        path.append(direction)
+        current = prev
+    path.reverse()
+    return path
 
 
 class Snake:
     def __init__(self):
         self.direction = None
+        self.direction_list = []
         self.snake_list = None
         self.grid = None
 
@@ -18,15 +48,19 @@ class Snake:
         for seg in self.snake_list:
             seg.draw()
 
-    def update(self, is_manual):
+    def update(self, is_manual, food_x, food_y):
         if self.direction == Direction.NOT_MOVING:
             return
 
         if is_manual:
             self.check_input()
         else:
-            if self.grid is None:
-                pass
+            if len(self.direction_list) == 0:
+                self.load_grid()
+                self.bfs(food_x, food_y)
+
+            if len(self.direction_list) > 0:
+                self.direction = self.direction_list.pop(0)
 
         w = self.snake_list[0].w
 
@@ -45,8 +79,10 @@ class Snake:
         if len(self.snake_list) > 1:
             for i in range(1, len(self.snake_list)):
                 self.snake_list[i].prev_x, self.snake_list[i].prev_y = self.snake_list[i].x, self.snake_list[i].y
-                self.snake_list[i].x, self.snake_list[i].y = self.snake_list[i - 1].prev_x, self.snake_list[
-                    i - 1].prev_y
+                self.snake_list[i].x, self.snake_list[i].y = (
+                    self.snake_list[i - 1].prev_x,
+                    self.snake_list[i - 1].prev_y
+                )
 
     def check_input(self):
         if (pyxel.btnp(pyxel.KEY_W) or pyxel.btnp(pyxel.KEY_UP)) and self.direction != Direction.DOWN:
@@ -114,18 +150,61 @@ class Snake:
         return False
 
     def update_snake(self):
-        last_seg = self.snake_list[len(self.snake_list) - 1]
-        seg = Segment(last_seg.prev_x, last_seg.prev_y)
+        tail = self.snake_list[len(self.snake_list) - 1]
+        seg = Segment(tail.prev_x, tail.prev_y)
         self.snake_list.append(seg)
 
     def end_snake(self):
         self.direction = Direction.NOT_MOVING
 
-    def init_grid(self):
+    def load_grid(self):
         rows = pyxel.height // 6
         cols = pyxel.width // 6
         self.grid = [[0 for _ in range(cols)] for _ in range(rows)]
-        start_x = (pyxel.height / 2) // 6
-        start_y = (pyxel.width / 2) // 6
-        self.grid[start_x][start_y] = 1
-        return
+        for seg in self.snake_list:
+            grid_x = round(seg.x / 6)
+            grid_y = round(seg.y / 6)
+            if 0 <= grid_x < cols and 0 <= grid_y < rows:
+                self.grid[grid_y][grid_x] = 1
+
+    def update_grid(self):
+        head = self.snake_list[0]
+        tail = self.snake_list[len(self.snake_list) - 1]
+        self.grid[round(head.y / 6)][round(head.x / 6)] = 1
+        self.grid[round(tail.y / 6)][round(tail.x / 6)] = 0
+
+    def bfs(self, food_x, food_y):
+        rows, cols = len(self.grid), len(self.grid[0])
+        visited = [[False for _ in range(cols)] for _ in range(rows)]
+        q = queue()
+        parent = {}
+
+        head = self.snake_list[0]
+        start = (round(head.y / 6), round(head.x / 6))
+        goal = (round(food_y / 6), round(food_x / 6))
+
+        q.append(start)
+        visited[start[0]][start[1]] = True
+
+        while q:
+            y, x = q.popleft()
+            if (y, x) == goal:
+                self.direction_list = reconstruct_path(parent, start, goal)
+                return
+
+            for i in range(4):
+                adj_y, adj_x = y + dRow[i], x + dCol[i]
+                if self.is_valid(adj_y, adj_x, visited):
+                    q.append((adj_y, adj_x))
+                    visited[adj_y][adj_x] = True
+                    parent[(adj_y, adj_x)] = (y, x)
+
+        self.direction_list = []
+
+    def is_valid(self, row, col, visited):
+        return (
+                0 <= row < len(self.grid) and
+                0 <= col < len(self.grid[0]) and
+                not visited[row][col] and
+                self.grid[row][col] == 0
+        )
