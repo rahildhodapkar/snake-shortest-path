@@ -32,6 +32,8 @@ class App:
                 self.state = GameState.BFS
             if pyxel.btnp(pyxel.KEY_3):
                 self.state = GameState.A_STAR
+            if pyxel.btnp(pyxel.KEY_4):
+                self.state = GameState.GREEDY_BEST_FIRST
 
         if self.state == GameState.MANUAL:
             self.mode = 0
@@ -45,6 +47,11 @@ class App:
 
         if self.state == GameState.A_STAR:
             self.mode = 2
+            if pyxel.btnp(pyxel.KEY_RETURN):
+                self.state = GameState.RUNNING
+
+        if self.state == GameState.GREEDY_BEST_FIRST:
+            self.mode = 3
             if pyxel.btnp(pyxel.KEY_RETURN):
                 self.state = GameState.RUNNING
 
@@ -80,9 +87,11 @@ class App:
             draw_ready_screen()
         if self.state == GameState.MANUAL:
             draw_manual_instructions()
-        if self.state == GameState.BFS:
-            draw_automatic_instructions()
-        if self.state == GameState.A_STAR:
+        if (
+                self.state == GameState.BFS or
+                self.state == GameState.A_STAR or
+                self.state == GameState.GREEDY_BEST_FIRST
+        ):
             draw_automatic_instructions()
         if self.state == GameState.RUNNING:
             self.snake.draw()

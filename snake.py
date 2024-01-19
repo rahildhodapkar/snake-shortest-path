@@ -63,16 +63,29 @@ class Snake:
             self.check_input()
         elif mode == 1:
             self.load_grid()
+            visited = self.create_visited_grid()
             start_time = time.time()
-            self.bfs(food_x, food_y)
+            self.bfs(food_x, food_y, visited)
             end_time = time.time()
             self.avg_time = (end_time - start_time) * 1000
             if len(self.direction_list) > 0:
                 self.direction = self.direction_list.pop(0)
         elif mode == 2:
             self.load_grid()
+            visited = self.create_visited_grid()
+            node_grid = self.create_node_grid()
             start_time = time.time()
-            self.a_star(food_x, food_y)
+            self.a_star(food_x, food_y, visited, node_grid)
+            end_time = time.time()
+            self.avg_time = (end_time - start_time) * 1000
+            if len(self.direction_list) > 0:
+                self.direction = self.direction_list.pop(0)
+        elif mode == 3:
+            self.load_grid()
+            visited = self.create_visited_grid()
+            node_grid = self.create_node_grid()
+            start_time = time.time()
+            self.greedy_best_first(food_x, food_y, visited, node_grid)
             end_time = time.time()
             self.avg_time = (end_time - start_time) * 1000
             if len(self.direction_list) > 0:
@@ -183,9 +196,7 @@ class Snake:
             if 0 <= grid_x < len(self.grid[0]) and 0 <= grid_y < len(self.grid):
                 self.grid[grid_y][grid_x] = 1
 
-    def bfs(self, food_x, food_y):
-        rows, cols = len(self.grid), len(self.grid[0])
-        visited = [[False for _ in range(cols)] for _ in range(rows)]
+    def bfs(self, food_x, food_y, visited):
         q = queue()
         parent = {}
 
@@ -214,11 +225,8 @@ class Snake:
 
         self.direction_list = []
 
-    def a_star(self, food_x, food_y):
+    def a_star(self, food_x, food_y, visited, node_grid):
         pq = []
-        rows, cols = len(self.grid), len(self.grid[0])
-        visited = [[False for _ in range(cols)] for _ in range(rows)]
-        node_grid = [[Node(0, 0, 0) for _ in range(cols)] for _ in range(rows)]
         parent = {}
 
         d_row = [1, -1, 0, 0]
@@ -232,6 +240,7 @@ class Snake:
         while len(pq) > 0:
             current = heapq.heappop(pq)[1]
             y, x = current[0], current[1]
+
             visited[y][x] = True
 
             if x == goal[1] and y == goal[0]:
@@ -254,6 +263,41 @@ class Snake:
                         heapq.heappush(pq, (child.f, (adj_y, adj_x)))
                         parent[(adj_y, adj_x)] = (y, x)
 
+    def greedy_best_first(self, food_x, food_y, visited, node_grid):
+        pq = []
+        parent = {}
+        in_queue = set()
+
+        d_row = [1, -1, 0, 0]
+        d_col = [0, 0, -1, 1]
+
+        head = self.snake_list[0]
+        start = (round(head.y / 6), round(head.x / 6))
+        goal = (round(food_y / 6), round(food_x / 6))
+        heapq.heappush(pq, (0, start))
+
+        while len(pq) > 0:
+            current = heapq.heappop(pq)[1]
+            y, x = current[0], current[1]
+
+            if visited[y][x]:
+                continue
+
+            visited[y][x] = True
+
+            if x == goal[1] and y == goal[0]:
+                self.direction_list = reconstruct_path(parent, start, goal)
+                return
+
+            for i in range(4):
+                adj_y, adj_x = y + d_row[i], x + d_col[i]
+                if self.is_valid(adj_y, adj_x, visited) and not (adj_y, adj_x) in in_queue:
+                    child = node_grid[adj_y][adj_x]
+                    child.h = manhattan_distance((adj_y, adj_x), (food_y, food_x))
+                    heapq.heappush(pq, (child.h, (adj_y, adj_x)))
+                    in_queue.add((adj_y, adj_x))
+                    parent[(adj_y, adj_x)] = (y, x)
+
     def is_valid(self, row, col, visited):
         return (
                 0 <= row < len(self.grid) and
@@ -261,3 +305,13 @@ class Snake:
                 not visited[row][col] and
                 self.grid[row][col] == 0
         )
+
+    def create_visited_grid(self):
+        rows, cols = len(self.grid), len(self.grid[0])
+        visited = [[False for _ in range(cols)] for _ in range(rows)]
+        return visited
+
+    def create_node_grid(self):
+        rows, cols = len(self.grid), len(self.grid[0])
+        node_grid = [[Node(0, 0, 0) for _ in range(cols)] for _ in range(rows)]
+        return node_grid
