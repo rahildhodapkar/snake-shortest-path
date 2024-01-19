@@ -6,7 +6,7 @@ from food import Food
 from gamestate import GameState
 from hud import (draw_automatic_instructions, draw_game_over, draw_hud,
                  draw_manual_instructions, draw_pause_instructions,
-                 draw_ready_screen)
+                 draw_ready_screen, draw_game_type, draw_avg_time_to_compute_path)
 from snake import Snake
 
 
@@ -18,7 +18,7 @@ class App:
         self.snake = Snake()
         self.score = None
         self.state = GameState.READY
-        self.mode = 0
+        self.mode = None
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -34,6 +34,7 @@ class App:
                 self.state = GameState.A_STAR
 
         if self.state == GameState.MANUAL:
+            self.mode = 0
             if pyxel.btnp(pyxel.KEY_RETURN):
                 self.state = GameState.RUNNING
 
@@ -51,12 +52,19 @@ class App:
             if pyxel.btnp(pyxel.KEY_P):
                 self.state = GameState.PAUSED
                 return
+            if pyxel.btnp(pyxel.KEY_Q):
+                pyxel.quit()
+            if pyxel.btnp(pyxel.KEY_E):
+                self.state = GameState.END
+                return
             self.check_collision()
             self.snake.update(self.mode, self.food.x, self.food.y)
 
         if self.state == GameState.PAUSED:
             if pyxel.btnp(pyxel.KEY_P):
                 self.state = GameState.RUNNING
+            if pyxel.btnp(pyxel.KEY_Q):
+                pyxel.quit()
 
         if self.state == GameState.END:
             if pyxel.btnp(pyxel.KEY_RETURN):
@@ -72,12 +80,17 @@ class App:
             draw_ready_screen()
         if self.state == GameState.MANUAL:
             draw_manual_instructions()
-        if self.state == GameState.BFS or self.state == GameState.A_STAR:
+        if self.state == GameState.BFS:
+            draw_automatic_instructions()
+        if self.state == GameState.A_STAR:
             draw_automatic_instructions()
         if self.state == GameState.RUNNING:
             self.snake.draw()
             self.food.draw()
+            if self.mode > 0:
+                draw_avg_time_to_compute_path(self.snake.avg_time)
             draw_hud(self.score)
+            draw_game_type(self.mode)
         if self.state == GameState.PAUSED:
             draw_pause_instructions()
 

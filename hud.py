@@ -28,22 +28,41 @@ def draw_ready_screen():
 
 
 def draw_manual_instructions():
-    title = "Use WASD or Arrow Keys to move snake and P to pause"
-    sub_title = "Press ENTER to continue"
+    title = "Use WASD or Arrow Keys to move snake"
+    sub_title = "Press P to pause, Q to quit, and E to force end"
+    sub_sub_title = "Press ENTER to continue"
     pyxel.text(center_text(title), pyxel.height / 3, title, 7)
     pyxel.text(center_text(sub_title), pyxel.height / 12 * 5, sub_title, 7)
+    pyxel.text(center_text(sub_sub_title), pyxel.height / 12 * 7, sub_title, 7)
 
 
 def draw_automatic_instructions():
-    title = "Press P to pause"
+    title = "Press P to pause, Q to quit, and E to force end"
     sub_title = "Press ENTER to continue"
     pyxel.text(center_text(title), pyxel.height / 3, title, 7)
     pyxel.text(center_text(sub_title), pyxel.height / 12 * 5, sub_title, 7)
 
 
+def draw_avg_time_to_compute_path(time):
+    title = f"Pathfinding Time: {round(time, 2)} ms"
+    pyxel.text(10, pyxel.height - 10, title, 7)
+
+
 def draw_pause_instructions():
-    title = "Press P to unpause the game"
+    title = "Press P to unpause the game or Q to quit"
     pyxel.text(center_text(title), pyxel.height / 3, title, 7)
+
+
+def draw_game_type(mode):
+    game_type = None
+    match mode:
+        case 0:
+            game_type = "Manual"
+        case 1:
+            game_type = "BFS"
+        case 2:
+            game_type = "A*"
+    pyxel.text(right_text(game_type), pyxel.height - 10, game_type, 7)
 
 
 def center_text(text, char_width=pyxel.FONT_WIDTH):

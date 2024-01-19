@@ -1,5 +1,6 @@
 from collections import deque as queue
 import heapq
+import time
 
 import pyxel
 
@@ -43,6 +44,7 @@ class Snake:
         self.direction_list = []
         self.snake_list = None
         self.grid = None
+        self.avg_time = 0
 
     def load_snake(self):
         self.snake_list = []
@@ -61,12 +63,18 @@ class Snake:
             self.check_input()
         elif mode == 1:
             self.load_grid()
+            start_time = time.time()
             self.bfs(food_x, food_y)
+            end_time = time.time()
+            self.avg_time = (end_time - start_time) * 1000
             if len(self.direction_list) > 0:
                 self.direction = self.direction_list.pop(0)
         elif mode == 2:
             self.load_grid()
+            start_time = time.time()
             self.a_star(food_x, food_y)
+            end_time = time.time()
+            self.avg_time = (end_time - start_time) * 1000
             if len(self.direction_list) > 0:
                 self.direction = self.direction_list.pop(0)
 
