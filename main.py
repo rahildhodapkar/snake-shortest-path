@@ -18,7 +18,7 @@ class App:
         self.snake = Snake()
         self.score = None
         self.state = GameState.READY
-        self.is_manual = True
+        self.mode = 0
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -30,13 +30,20 @@ class App:
                 self.state = GameState.MANUAL
             if pyxel.btnp(pyxel.KEY_2):
                 self.state = GameState.BFS
+            if pyxel.btnp(pyxel.KEY_3):
+                self.state = GameState.A_STAR
 
         if self.state == GameState.MANUAL:
             if pyxel.btnp(pyxel.KEY_RETURN):
                 self.state = GameState.RUNNING
 
         if self.state == GameState.BFS:
-            self.is_manual = False
+            self.mode = 1
+            if pyxel.btnp(pyxel.KEY_RETURN):
+                self.state = GameState.RUNNING
+
+        if self.state == GameState.A_STAR:
+            self.mode = 2
             if pyxel.btnp(pyxel.KEY_RETURN):
                 self.state = GameState.RUNNING
 
@@ -45,7 +52,7 @@ class App:
                 self.state = GameState.PAUSED
                 return
             self.check_collision()
-            self.snake.update(self.is_manual, self.food.x, self.food.y)
+            self.snake.update(self.mode, self.food.x, self.food.y)
 
         if self.state == GameState.PAUSED:
             if pyxel.btnp(pyxel.KEY_P):
@@ -65,7 +72,7 @@ class App:
             draw_ready_screen()
         if self.state == GameState.MANUAL:
             draw_manual_instructions()
-        if self.state == GameState.BFS:
+        if self.state == GameState.BFS or self.state == GameState.A_STAR:
             draw_automatic_instructions()
         if self.state == GameState.RUNNING:
             self.snake.draw()

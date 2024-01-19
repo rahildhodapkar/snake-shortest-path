@@ -5,6 +5,7 @@ class GameState(Enum):
     READY = 0
     MANUAL = 1
     BFS = 2
-    RUNNING = 3
-    PAUSED = 4
-    END = 5
+    A_STAR = 3
+    RUNNING = 4
+    PAUSED = 5
+    END = 6

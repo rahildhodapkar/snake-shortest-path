@@ -1,9 +1,11 @@
 from collections import deque as queue
+import heapq
 
 import pyxel
 
 from direction import Direction
 from segment import Segment
+from node import Node
 
 
 def get_direction_from_parent(parent, current):
@@ -31,6 +33,10 @@ def reconstruct_path(parent, start, goal):
     return path
 
 
+def manhattan_distance(start, end):
+    return abs(start[0] - end[0]) + abs(start[1] - end[1])
+
+
 class Snake:
     def __init__(self):
         self.direction = None
@@ -47,15 +53,20 @@ class Snake:
         for seg in self.snake_list:
             seg.draw()
 
-    def update(self, is_manual, food_x, food_y):
+    def update(self, mode, food_x, food_y):
         if self.direction == Direction.NOT_MOVING:
             return
 
-        if is_manual:
+        if mode == 0:
             self.check_input()
-        else:
+        elif mode == 1:
             self.load_grid()
             self.bfs(food_x, food_y)
+            if len(self.direction_list) > 0:
+                self.direction = self.direction_list.pop(0)
+        elif mode == 2:
+            self.load_grid()
+            self.a_star(food_x, food_y)
             if len(self.direction_list) > 0:
                 self.direction = self.direction_list.pop(0)
 
@@ -195,9 +206,50 @@ class Snake:
 
         self.direction_list = []
 
-    def is_valid(self, row, col, visited):
-        is_within_bounds = 0 <= row < len(self.grid) and 0 <= col < len(self.grid[0])
-        is_not_visited = not visited[row][col]
-        is_empty_cell = self.grid[row][col] == 0
+    def a_star(self, food_x, food_y):
+        pq = []
+        rows, cols = len(self.grid), len(self.grid[0])
+        visited = [[False for _ in range(cols)] for _ in range(rows)]
+        node_grid = [[Node(0, 0, 0) for _ in range(cols)] for _ in range(rows)]
+        parent = {}
 
-        return is_within_bounds and is_not_visited and is_empty_cell
+        d_row = [1, -1, 0, 0]
+        d_col = [0, 0, -1, 1]
+
+        head = self.snake_list[0]
+        start = (round(head.y / 6), round(head.x / 6))
+        goal = (round(food_y / 6), round(food_x / 6))
+        heapq.heappush(pq, (0, start))
+
+        while len(pq) > 0:
+            current = heapq.heappop(pq)[1]
+            y, x = current[0], current[1]
+            visited[y][x] = True
+
+            if x == goal[1] and y == goal[0]:
+                self.direction_list = reconstruct_path(parent, start, goal)
+                return
+
+            for i in range(4):
+                adj_y, adj_x = y + d_row[i], x + d_col[i]
+                if self.is_valid(adj_y, adj_x, visited):
+                    child = node_grid[adj_y][adj_x]
+                    child.g = node_grid[y][x].g + manhattan_distance((adj_y, adj_x), (y, x))
+                    child.h = manhattan_distance((adj_y, adj_x), (food_y, food_x))
+                    child.f = child.g + child.h
+
+                    for n in pq:
+                        if (n[1][1], n[1][0]) == (adj_x, adj_y):
+                            if child.g >= node_grid[adj_y][adj_x].g:
+                                break
+                    else:
+                        heapq.heappush(pq, (child.f, (adj_y, adj_x)))
+                        parent[(adj_y, adj_x)] = (y, x)
+
+    def is_valid(self, row, col, visited):
+        return (
+                0 <= row < len(self.grid) and
+                0 <= col < len(self.grid[0]) and
+                not visited[row][col] and
+                self.grid[row][col] == 0
+        )
