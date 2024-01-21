@@ -16,10 +16,12 @@ Snake Shortest Path is a program that allows a user to either manually play Snak
 ![image](https://github.com/rahildhodapkar/snake-shortest-path/assets/115059842/b9d4ae67-4660-4780-a98d-ed5551317388)
 
 ## Demo
-1. Vid 1
-2. Vid 2
-3. Vid 3
-4. Vid 4
+Here are four videos, each showcasing the program's different ways of playing the game.
+
+1. [Manual Demo](https://youtu.be/q6aNWeaunss)
+2. [BFS Demo](https://youtu.be/J72vp-JqPdE)
+3. [A* Demo](https://youtu.be/nioyPt-4jYM)
+4. [Greedy Best-First](https://youtu.be/oZtN-DgfK_8)
 ## How to Use
 Ensure you have the following:
 1. Python 3.x
