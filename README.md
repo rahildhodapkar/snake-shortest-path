@@ -53,6 +53,7 @@ Snake Shortest Path is written entirely in Python3. The project uses the retro g
 
 ## Contact Information
 Developer: Rahil Dhodapkar
+
 Email: rahildhodapkar@gmail.com
 
 
