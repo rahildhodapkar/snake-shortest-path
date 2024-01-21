@@ -6,12 +6,15 @@
 4. [Gameplay](#gameplay)
 5. [Technologies Used](#technologies-used)
 6. [Contact Information](#contact-information)
-![image](https://github.com/rahildhodapkar/snake-shortest-path/assets/115059842/b9d4ae67-4660-4780-a98d-ed5551317388)
+
 ## Description
 Snake Shortest Path is a program that allows a user to either manually play Snake, or utilize a shortest-path algorithm to automatically control the snake's movement. The game currently has three algorithms:   
 1. [Breadth-First-Search](https://www.freecodecamp.org/news/exploring-the-applications-and-limits-of-breadth-first-search-to-the-shortest-paths-in-a-weighted-1e7b28b3307/)
 2. [A* Search](https://en.wikipedia.org/wiki/A*_search_algorithm)
 3. [Greedy Best-First Search](https://en.wikipedia.org/wiki/Best-first_search)
+
+![image](https://github.com/rahildhodapkar/snake-shortest-path/assets/115059842/b9d4ae67-4660-4780-a98d-ed5551317388)
+
 ## Demo
 1. Vid 1
 2. Vid 2
