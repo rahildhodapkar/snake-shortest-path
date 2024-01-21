@@ -11,6 +11,11 @@ from snake import Snake
 
 
 class App:
+    """Driver file for program.
+
+    Initiates the game to run at 20 fps, running the program at more than 20 fps leads to performance
+    issues for the A* algorithm.
+    """
     def __init__(self):
         pyxel.init(384, 300, display_scale=2, title="SNAKE SHORTEST PATH", fps=20)
         pyxel.load("assets/resources.pyxres")
@@ -22,6 +27,8 @@ class App:
         pyxel.run(self.update, self.draw)
 
     def update(self):
+        """Updates the game based on which GameState it is in."""
+
         if self.state == GameState.READY:
             self.food = Food()
             self.snake.load_snake()
@@ -80,6 +87,8 @@ class App:
                 pyxel.quit()
 
     def draw(self):
+        """Draws components related to the current GameState."""
+
         pyxel.cls(0)
         if self.state == GameState.END:
             draw_game_over(self.score)
@@ -104,6 +113,12 @@ class App:
             draw_pause_instructions()
 
     def check_collision(self):
+        """Checks if the snake ever collides with itself, food, or goes out-of-bounds.
+
+        If the snake collides with food, the score is incremented by 1. If it goes out-of-bounds or collides with itself,
+        the GameState is set to GameState.END
+        """
+
         if self.snake.detect_out_of_bounds() or self.snake.detect_snake_collision():
             self.snake.end_snake()
             self.state = GameState.END

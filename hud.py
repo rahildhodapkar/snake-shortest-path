@@ -2,6 +2,8 @@ import pyxel
 
 
 def draw_hud(score=1):
+    """Draws the current score, or snake length."""
+
     pyxel.text(10, 5, "Score: " + str(score), 7)
 
 
@@ -30,6 +32,8 @@ def draw_ready_screen():
 
 
 def draw_manual_instructions():
+    """Draws instructions for when user wants to play Manually"""
+
     title = "Use WASD or Arrow Keys to move snake"
     sub_title = "Press P to pause, Q to quit, and E to force end"
     sub_sub_title = "Press ENTER to continue"
@@ -39,6 +43,8 @@ def draw_manual_instructions():
 
 
 def draw_automatic_instructions():
+    """Draws instructions when a user wants to utilize shortest-path algorithms."""
+
     title = "Press P to pause, Q to quit, and E to force end"
     sub_title = "Press ENTER to continue"
     pyxel.text(center_text(title), pyxel.height / 3, title, 7)
@@ -46,6 +52,8 @@ def draw_automatic_instructions():
 
 
 def draw_avg_time_to_compute_path(time):
+    """Draws the pathfinding time when shortest-path algorithm is used"""
+
     title = f"Pathfinding Time: {round(time, 2)} ms"
     pyxel.text(10, pyxel.height - 10, title, 7)
 
@@ -56,6 +64,11 @@ def draw_pause_instructions():
 
 
 def draw_game_type(mode):
+    """ Draws text showing which game mode the user has chosen
+
+    :param mode: Integer value representing a game mode
+    """
+
     game_type = None
     match mode:
         case 0:
@@ -70,10 +83,24 @@ def draw_game_type(mode):
 
 
 def center_text(text, char_width=pyxel.FONT_WIDTH):
+    """Centers text based on text length and font width
+
+    :param text: Text you want to center
+    :param char_width: Character width, default set to pyxel.FONT_WIDTH
+    :return: Integer representing X coordinate to center text
+    """
+
     text_width = len(text) * char_width
     return (pyxel.width - text_width) / 2
 
 
 def right_text(text, char_width=pyxel.FONT_WIDTH):
+    """Sets text to right based on text length and character width
+
+    :param text: Text you want to set to the right
+    :param char_width: Character width, default set to pyxel.FONT_WIDTH
+    :return: Integer representing X coordinate to set text to right
+    """
+
     text_width = len(text) * char_width
     return pyxel.width - (text_width + char_width)

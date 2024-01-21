@@ -10,6 +10,12 @@ from node import Node
 
 
 def get_direction_from_parent(parent, current):
+    """Determines direction the snake must travel to go from parent location to current location
+
+    :param parent: Previous location of snake
+    :param current: Current location of snake
+    """
+
     py, px = parent
     cy, cx = current
     if cx == px + 1:
@@ -23,6 +29,14 @@ def get_direction_from_parent(parent, current):
 
 
 def reconstruct_path(parent, start, goal):
+    """Reconstructs the path taken by the snake to go from the start to the goal
+
+    :param parent: Dict where the Key:Value relationship is the parent's coordinates and the current coordinates
+    :param start: Starting coordinates of snake
+    :param goal: Coordinates of bit of food
+    :return: List of Direction enums
+    """
+
     path = []
     current = goal
     while current != start:
@@ -35,11 +49,25 @@ def reconstruct_path(parent, start, goal):
 
 
 def manhattan_distance(start, end):
+    """Calculates the Manhattan distance between two nodes
+
+    :param start: Tuple of start coordinates
+    :param end: Tuple of end coordinates
+    :return: Integer representing Manhattan distance
+    """
+
     return abs(start[0] - end[0]) + abs(start[1] - end[1])
 
 
 class Snake:
+    """This class represents the snake and its segments.
+
+    This class has the necessary functions for checking user inputs during manual mode, as well as the shortest
+    path algorithms.
+    """
     def __init__(self):
+        """Constructor for Snake"""
+
         self.direction = None
         self.direction_list = []
         self.snake_list = None
@@ -47,15 +75,27 @@ class Snake:
         self.avg_time = 0
 
     def load_snake(self):
+        """Initializes the snake, which is always initialized to the center of the screen"""
+
         self.snake_list = []
         self.snake_list.append(Segment(pyxel.width / 2, pyxel.height / 2))
         self.direction = None
 
     def draw(self):
+        """Draws each segment in the snake"""
+
         for seg in self.snake_list:
             seg.draw()
 
     def update(self, mode, food_x, food_y):
+        """Updates the snake
+
+        :param mode: Which game mode the user is in
+        :param food_x: X coordinate of food
+        :param food_y: Y coordinate of food
+        :return: If the snake is not moving, the function will prematurely return nothing
+        """
+
         if self.direction == Direction.NOT_MOVING:
             return
 
@@ -114,6 +154,8 @@ class Snake:
                 )
 
     def check_input(self):
+        """Checks user input and assigns a direction based on input."""
+
         if (pyxel.btnp(pyxel.KEY_W) or pyxel.btnp(pyxel.KEY_UP)) and self.direction != Direction.DOWN:
             self.direction = Direction.UP
         elif (pyxel.btnp(pyxel.KEY_S) or pyxel.btnp(pyxel.KEY_DOWN)) and self.direction != Direction.UP:
@@ -124,6 +166,11 @@ class Snake:
             self.direction = Direction.RIGHT
 
     def detect_food_collision(self, obj):
+        """Checks if the snake's head touches the food
+
+        :param obj: The food
+        """
+
         num_steps = 6
         w = 6
         if self.direction is None:
@@ -155,6 +202,8 @@ class Snake:
         return False
 
     def detect_out_of_bounds(self):
+        """Checks if the snake goes out of bounds"""
+
         x = self.snake_list[0].x
         y = self.snake_list[0].y
         w = self.snake_list[0].w
@@ -169,6 +218,8 @@ class Snake:
         return False
 
     def detect_snake_collision(self):
+        """Checks if the snake collides with itself"""
+
         if len(self.snake_list) < 1:
             return False
         x = self.snake_list[0].x
@@ -179,14 +230,26 @@ class Snake:
         return False
 
     def update_snake(self):
+        """Removes the last segment of the snake and updates the head"""
+
         tail = self.snake_list[len(self.snake_list) - 1]
         seg = Segment(tail.prev_x, tail.prev_y)
         self.snake_list.append(seg)
 
     def end_snake(self):
+        """Make the snake not move"""
+
         self.direction = Direction.NOT_MOVING
 
     def load_grid(self):
+        """Load a 2D grid representation of the game
+
+        Since the dimensions of the Pyxel window is 384 by 300, and since the width of the segment and food is 6x6, we
+        can divide the window dimensions by 6 to get an accurate representation of the game
+
+        Areas where the snake is are marked with 1, otherwise 0
+        """
+
         rows = pyxel.height // 6
         cols = pyxel.width // 6
         self.grid = [[0 for _ in range(cols)] for _ in range(rows)]
@@ -197,6 +260,14 @@ class Snake:
                 self.grid[grid_y][grid_x] = 1
 
     def bfs(self, food_x, food_y, visited):
+        """BFS shortest path algorithm
+
+        :param food_x: X coordinate of food
+        :param food_y: Y coordinate of food
+        :param visited: 2D grid representing which nodes the algorithm has already visited
+        :return: If the algorithm reaches the goal, the algorithm prematurely returns nothing.
+        """
+
         q = queue()
         parent = {}
 
@@ -226,6 +297,15 @@ class Snake:
         self.direction_list = []
 
     def a_star(self, food_x, food_y, visited, node_grid):
+        """A* shortest path algorithm
+
+        :param food_x: X coordinate of food
+        :param food_y: Y coordinate of food
+        :param visited: 2D grid representing visited nodes
+        :param node_grid: 2D grid holding heuristics for each node
+        :return: If the algorithm reaches its target, it prematurely returns nothing
+        """
+
         pq = []
         parent = {}
 
@@ -264,6 +344,15 @@ class Snake:
                         parent[(adj_y, adj_x)] = (y, x)
 
     def greedy_best_first(self, food_x, food_y, visited, node_grid):
+        """Greedy Best-First shortest path algorithm
+
+        :param food_x: X coordinate of food
+        :param food_y: Y coordinate of food
+        :param visited: 2D grid representing visited nodes
+        :param node_grid: 2D grid holding heuristics for each node
+        :return: If the algorithm finds its goal, it returns prematurely
+        """
+
         pq = []
         parent = {}
         in_queue = set()
@@ -299,6 +388,14 @@ class Snake:
                     parent[(adj_y, adj_x)] = (y, x)
 
     def is_valid(self, row, col, visited):
+        """Checks if a cell is valid to visit
+
+        :param row: Y coordinate
+        :param col: X coordinate
+        :param visited: 2D grid representing visited nodes
+        :return: True if the cell is in-bounds, not visited, and not occupied by a segment, False otherwise
+        """
+
         return (
                 0 <= row < len(self.grid) and
                 0 <= col < len(self.grid[0]) and
@@ -307,11 +404,23 @@ class Snake:
         )
 
     def create_visited_grid(self):
+        """Load a 2D grid of booleans
+
+        Initially set to all False
+        :return: 2D array holding booleans
+        """
+
         rows, cols = len(self.grid), len(self.grid[0])
         visited = [[False for _ in range(cols)] for _ in range(rows)]
         return visited
 
     def create_node_grid(self):
+        """Load a 2D grid of Nodes
+
+        Set each node to have its heuristics all at 0 initially
+        :return: 2D array of Nodes
+        """
+
         rows, cols = len(self.grid), len(self.grid[0])
         node_grid = [[Node(0, 0, 0) for _ in range(cols)] for _ in range(rows)]
         return node_grid
